@@ -133,6 +133,18 @@ In the spreadsheet, click **Share** and add people:
 
 You can safely add your own columns after `Aantal flessen`. Don't rename, move or edit the hidden **Onbevestigd** sheet.
 
+## 9. Daily check
+
+Every morning a GitHub Actions workflow ([.github/workflows/health-check.yml](.github/workflows/health-check.yml)) checks that ordering still works, without placing an order:
+
+1. The page on GitHub Pages loads and still contains the captcha and the script address.
+2. The script's self-test (`<script URL>?health=1`) passes. It checks that the `Bestellingen` sheet exists, `SITE_URL` is valid, there is email quota left, and `TURNSTILE_SECRET` is set and accepted by Cloudflare. If something fails, the answer lists it, for example `{"ok":false,"failed":["captcha"]}`.
+
+- **When a check fails**, GitHub emails you (the default for failed workflow runs on your repo). You can open the run under the **Actions** tab to see which check failed.
+- **To run it manually**, go to **Actions → Daily check → Run workflow**.
+- GitHub turns off scheduled workflows in repos without activity for 60 days. The workflow prevents this by switching itself back on at the end of each run. If it ever does get turned off, click **Enable workflow** in the Actions tab.
+- The self-test result is cached for 5 minutes. After fixing a problem, wait 5 minutes before checking again.
+
 ## Making changes
 
 - **Page:** edit `index.html`, then commit and push. GitHub Pages updates automatically.

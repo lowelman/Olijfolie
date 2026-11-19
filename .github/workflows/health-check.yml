@@ -1,0 +1,49 @@
+# Checks every morning that the order page and its backend still work, without placing an order.
+# GitHub emails the repo owner when a run fails.
+name: Daily check
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # 06:00 UTC = 07:00 (winter) / 08:00 (summer) in Brussels
+  workflow_dispatch: # allows "Run workflow" from the Actions tab
+
+permissions:
+  actions: write # only for the keepalive step at the end
+  contents: read
+
+env:
+  PAGE_URL: https://lowelman.github.io/olijfolie/
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Order page loads
+        id: page
+        run: |
+          html=$(curl -fsSL --retry 3 --retry-delay 10 --retry-all-errors "$PAGE_URL")
+          echo "$html" | grep -q "challenges.cloudflare.com/turnstile" || { echo "::error::Captcha script missing from the page"; exit 1; }
+          script_url=$(echo "$html" | grep -oE 'SCRIPT_URL = "https://script\.google\.com/[^"]+"' | head -n1 | cut -d'"' -f2)
+          [ -n "$script_url" ] || { echo "::error::SCRIPT_URL not found on the page"; exit 1; }
+          echo "script_url=$script_url" >> "$GITHUB_OUTPUT"
+          echo "Page OK"
+
+      - name: Backend self-test passes
+        env:
+          SCRIPT_URL: ${{ steps.page.outputs.script_url }}
+        run: |
+          body=$(curl -fsSL --retry 3 --retry-delay 10 --retry-all-errors "$SCRIPT_URL?health=1")
+          echo "Response: $body"
+          if [ "$(echo "$body" | jq -r '.ok')" != "true" ]; then
+            echo "::error::Backend self-test failed: $(echo "$body" | jq -c '.failed // .')"
+            exit 1
+          fi
+
+      # GitHub turns off scheduled workflows after 60 days without repo activity.
+      # Re-enabling this workflow on every run resets that counter.
+      - name: Keep the schedule alive
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/health-check.yml/enable"

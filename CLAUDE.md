@@ -18,6 +18,7 @@ index.html           → The preorder page (UI + form logic)
 images/              → Background photos (resized to ~1600px wide, keep them web-sized)
 apps-script/Code.gs  → Apps Script source; paste into the Sheet's script editor
 README.md            → Setup and deploy instructions
+.github/workflows/health-check.yml → Daily check of the page + Apps Script self-test (?health=1)
 
 ## Rules
 - All UI text in Dutch

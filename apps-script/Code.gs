@@ -81,8 +81,58 @@ function doPost(e) {
 }
 
 // Lets you check the deployment by opening the URL in a browser.
-function doGet() {
+// With ?health=1 it runs a full self-test (used by the daily GitHub Actions check).
+function doGet(e) {
+  const p = (e && e.parameter) || {};
+  if (p.health) return json_(healthCheck_());
   return json_({ ok: true, status: 'Bestelformulier actief' });
+}
+
+// Checks everything an order needs, without storing anything or sending email.
+// Returns { ok: true } or { ok: false, failed: [names of failed checks] }. Never returns secrets.
+// The result is cached for 5 minutes so nobody can use this URL to burn through the quotas.
+function healthCheck_() {
+  const cache = CacheService.getScriptCache();
+  const cached = cache.get('health');
+  if (cached) return JSON.parse(cached);
+
+  const failed = [];
+  const check = function (name, fn) {
+    try {
+      if (!fn()) failed.push(name);
+    } catch (err) {
+      console.error('Health check "' + name + '" failed: ' + err);
+      failed.push(name);
+    }
+  };
+
+  check('sheet', function () {
+    return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME) !== null;
+  });
+  check('siteurl', function () {
+    return /^https?:\/\/[^\s"'<>]+$/.test(SITE_URL);
+  });
+  check('mailquota', function () {
+    return MailApp.getRemainingDailyQuota() > 0;
+  });
+  // Sends Cloudflare a fake token. A valid secret gives "invalid-input-response",
+  // a wrong or missing secret gives "invalid-input-secret" / "missing-input-secret".
+  check('captcha', function () {
+    const secret = PropertiesService.getScriptProperties().getProperty('TURNSTILE_SECRET');
+    if (!secret) return false;
+    const res = UrlFetchApp.fetch(TURNSTILE_VERIFY_URL, {
+      method: 'post',
+      payload: { secret: secret, response: 'health-check' },
+      muteHttpExceptions: true,
+    });
+    if (res.getResponseCode() !== 200) return false;
+    const codes = JSON.parse(res.getContentText())['error-codes'] || [];
+    return codes.indexOf('invalid-input-secret') === -1 && codes.indexOf('missing-input-secret') === -1;
+  });
+
+  const result = failed.length === 0 ? { ok: true } : { ok: false, failed: failed };
+  cache.put('health', JSON.stringify(result), 300); // 5 minutes
+  return result;
 }
 
 // Step 1: check the order, store it as unconfirmed and email the confirmation link.
