@@ -24,7 +24,7 @@
 // Address of the order page. The confirmation link in the email points here.
 // To test locally, temporarily use the address from `npx serve .`, e.g. 'http://localhost:3000/'.
 // Redeploy the script (Deploy → Manage deployments → New version) after changing it.
-const SITE_URL = 'https://lowelman.github.io/Olijfolie/';
+const SITE_URL = 'https://lowelman.github.io/olijfolie/';
 //const SITE_URL = 'https://<your-username>.github.io/<repo>/';
 
 // Cloudflare's captcha check. Fixed address, no need to change it.
