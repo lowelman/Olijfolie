@@ -12,7 +12,7 @@ Everything is free. You only need a Google account and a GitHub account.
 1. Go to [sheets.new](https://sheets.new) to create a new spreadsheet.
 2. Give it a name, for example *Olijfolie bestellingen*.
 
-You don't need to add columns yourself. The script creates a sheet called **Bestellingen** with the headers `Tijdstip | Naam | E-mail | Aantal kannen` on the first confirmed order.
+You don't need to add columns yourself. The script creates a sheet called **Bestellingen** with the headers `Tijdstip | Naam | E-mail | Aantal flessen` on the first confirmed order.
 
 It also creates a hidden sheet called **Onbevestigd**. Orders wait there until the customer clicks the link in the confirmation email (see step 6). Unconfirmed orders are removed automatically after 48 hours.
 
@@ -131,7 +131,7 @@ In the spreadsheet, click **Share** and add people:
 - **Viewer** if they should only see the orders.
 - **Editor** if they may change them, for example to mark orders as paid or delivered.
 
-You can safely add your own columns after `Aantal kannen`. Don't rename, move or edit the hidden **Onbevestigd** sheet.
+You can safely add your own columns after `Aantal flessen`. Don't rename, move or edit the hidden **Onbevestigd** sheet.
 
 ## Making changes
 

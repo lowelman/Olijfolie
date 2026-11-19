@@ -36,9 +36,9 @@ const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/sit
 // ============================================================================
 
 const SHEET_NAME = 'Bestellingen';
-const HEADERS = ['Tijdstip', 'Naam', 'E-mail', 'Aantal kannen'];
+const HEADERS = ['Tijdstip', 'Naam', 'E-mail', 'Aantal flessen'];
 const PENDING_SHEET_NAME = 'Onbevestigd';
-const PENDING_HEADERS = ['Controlecode', 'Tijdstip', 'Naam', 'E-mail', 'Aantal kannen'];
+const PENDING_HEADERS = ['Controlecode', 'Tijdstip', 'Naam', 'E-mail', 'Aantal flessen'];
 const MAX_JUGS = 15;
 const CONFIRM_HOURS = 48; // how long the confirmation link stays valid
 
@@ -196,7 +196,7 @@ function confirmOrder_(code) {
 }
 
 function sendConfirmationEmail_(email, name, jugs, link) {
-  const amount = jugs + ' ' + (jugs === 1 ? 'kan' : 'kannen');
+  const amount = jugs + ' ' + (jugs === 1 ? 'fles' : 'flessen');
   const safeName = escapeHtml_(name);
   const safeLink = escapeHtml_(link);
 
