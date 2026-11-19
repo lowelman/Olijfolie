@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Olijfolie bestellen</title>
+    <meta name="description" content="Bestel je kannen olijfolie van de nieuwe oogst." />
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              olive: {
+                50: "#f7f8ed",
+                100: "#eceed5",
+                200: "#d9deae",
+                500: "#8a9a3b",
+                600: "#6c7a2c",
+                700: "#535e24",
+                900: "#2f351a",
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-olive-900 text-olive-900 antialiased">
+    <!-- Full-screen background photo; the photo class is swapped per view in setBackground() -->
+    <div id="bg" aria-hidden="true" class="fixed inset-0 -z-10 bg-cover bg-center bg-[url('images/olijven.jpg')]">
+      <div class="absolute inset-0 bg-olive-900/40"></div>
+    </div>
+
+    <main class="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 sm:py-16">
+      <div class="w-full max-w-md">
+        <header class="mb-8 text-center text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">
+          <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Olijfolie bestellen</h1>
+          <p class="mt-3 text-base text-olive-50 sm:text-lg">
+            Reserveer je kannen ecologische extra vierge olijfolie.
+          </p>
+        </header>
+
+        <section class="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-olive-100 sm:p-8">
+          <div id="success" role="status" class="hidden rounded-xl bg-olive-100 p-6 text-center">
+            <p id="success-text" class="text-lg font-semibold"></p>
+            <p id="success-sub" class="mt-2 text-sm text-olive-700"></p>
+          </div>
+
+          <!-- Shown when the visitor arrives via the link in the confirmation email (?bevestig=…) -->
+          <div id="confirm" class="hidden text-center">
+            <h2 class="text-xl font-semibold">Bevestig je bestelling</h2>
+            <p class="mt-2 text-sm text-olive-700">Klik op de knop om je bestelling definitief te maken.</p>
+            <p id="confirm-error" role="alert" class="mt-5 hidden rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700"></p>
+            <button id="confirm-btn" type="button"
+              class="mt-6 w-full rounded-lg bg-olive-600 px-4 py-3 font-semibold text-white transition hover:bg-olive-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-olive-200 disabled:cursor-not-allowed disabled:opacity-60">
+              Bestelling bevestigen
+            </button>
+            <a id="confirm-restart" href="./" class="mt-4 hidden text-sm font-medium text-olive-700 underline hover:text-olive-900">
+              Nieuwe bestelling plaatsen
+            </a>
+          </div>
+
+          <form id="form" novalidate class="space-y-5">
+            <!-- Product info: about the oil + price -->
+            <div class="rounded-xl bg-olive-50 p-4 ring-1 ring-olive-100 sm:p-5">
+              <div class="space-y-2 text-sm leading-relaxed text-olive-700">
+                <p>
+                  Ecologische olijfolie van superieure kwaliteit, rechtstreeks verkregen door middel van koude extractie
+                  uit eerste kwaliteit olijven en uitsluitend met mechanische middelen geproduceerd.
+                </p>
+                <p>
+                  Het klimaat, de hoogte waarop de olijfbomen groeien (600m - 700m) en de specifieke olijfsoorten maken
+                  deze streek tot een ware schat voor de productie van extra vierge olijfolie van topkwaliteit, die
+                  wereldwijd erkend wordt.
+                </p>
+              </div>
+              <p class="mt-4 flex items-baseline justify-between gap-3 border-t border-olive-200 pt-3">
+                <span class="text-sm font-medium text-olive-700">Prijs per kan van 5 liter</span>
+                <span class="text-2xl font-bold">€65</span>
+              </p>
+            </div>
+
+            <p id="form-error" role="alert" class="hidden rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700"></p>
+
+            <div>
+              <label for="name" class="mb-1.5 block text-sm font-medium">Naam</label>
+              <input id="name" name="name" type="text" autocomplete="name" required maxlength="100"
+                class="w-full rounded-lg border border-olive-200 bg-white px-4 py-3 text-base placeholder:text-olive-900/40 focus:border-olive-500 focus:outline-none focus:ring-4 focus:ring-olive-100" />
+              <p data-error-for="name" class="mt-1 hidden text-sm text-red-700"></p>
+            </div>
+
+            <div>
+              <label for="email" class="mb-1.5 block text-sm font-medium">E-mailadres</label>
+              <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="254"
+                class="w-full rounded-lg border border-olive-200 bg-white px-4 py-3 text-base placeholder:text-olive-900/40 focus:border-olive-500 focus:outline-none focus:ring-4 focus:ring-olive-100" />
+              <p data-error-for="email" class="mt-1 hidden text-sm text-red-700"></p>
+            </div>
+
+            <div>
+              <label for="jugs" class="mb-1.5 block text-sm font-medium">Aantal kannen</label>
+              <input id="jugs" name="jugs" type="number" inputmode="numeric" min="1" max="15" step="1" value="1" required
+                class="w-full rounded-lg border border-olive-200 bg-white px-4 py-3 text-base focus:border-olive-500 focus:outline-none focus:ring-4 focus:ring-olive-100" />
+              <p data-error-for="jugs" class="mt-1 hidden text-sm text-red-700"></p>
+              <p id="total" aria-live="polite" class="mt-1.5 text-sm text-olive-700">Totaal: <strong class="font-semibold text-olive-900">€65</strong></p>
+            </div>
+
+            <!-- Honeypot: hidden from people, bots tend to fill it in -->
+            <div class="absolute -left-[9999px]" aria-hidden="true">
+              <label for="website">Website</label>
+              <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+            </div>
+
+            <!-- Cloudflare Turnstile captcha (rendered by the script below) -->
+            <div id="captcha" class="min-h-[65px] w-full"></div>
+
+            <button id="submit" type="submit"
+              class="w-full rounded-lg bg-olive-600 px-4 py-3 font-semibold text-white transition hover:bg-olive-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-olive-200 disabled:cursor-not-allowed disabled:opacity-60">
+              Bestelling plaatsen
+            </button>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      // Paste the Web app URL from your Apps Script deployment here (ends in /exec).
+      const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwm5XDAMGUyz6j6lgnTwJ7D-thU7Qb9d0fP0FF30M8BPGBZ3i2iVQTJNSjnxphXMkH/exec";
+      // Paste the Turnstile SITE key from Cloudflare here. (The SECRET key goes in Apps Script, never here.)
+      const TURNSTILE_SITE_KEY = "0x4AAAAAAGG5zGO0bQpaDwlR";
+      const MAX_JUGS = 15;
+      const PRICE_PER_JUG = 65; // euro, for a 5 litre jug
+
+      let captchaId = null;
+      // Code from the confirmation email link, or null on a normal visit.
+      const confirmCode = new URLSearchParams(location.search).get("bevestig");
+
+      // Called by the Cloudflare script once it has loaded.
+      window.onTurnstileLoad = () => {
+        if (confirmCode !== null) return; // no form, so no captcha needed
+        const el = document.getElementById("captcha");
+        captchaId = turnstile.render(el, {
+          sitekey: TURNSTILE_SITE_KEY,
+          language: "nl",
+          // The normal widget needs 300px; use the small version on narrow phones.
+          size: el.clientWidth < 300 ? "compact" : "flexible",
+        });
+      };
+
+      const form = document.getElementById("form");
+      const submitBtn = document.getElementById("submit");
+      const formError = document.getElementById("form-error");
+      const success = document.getElementById("success");
+      const successText = document.getElementById("success-text");
+      const successSub = document.getElementById("success-sub");
+      const confirmPanel = document.getElementById("confirm");
+      const confirmBtn = document.getElementById("confirm-btn");
+      const confirmError = document.getElementById("confirm-error");
+      const confirmRestart = document.getElementById("confirm-restart");
+
+      const jugsLabel = (jugs) => `${jugs} ${jugs === 1 ? "kan" : "kannen"}`;
+
+      // Live total under the quantity field (hidden while the number is invalid).
+      const jugsInput = document.getElementById("jugs");
+      const totalEl = document.getElementById("total");
+      function updateTotal() {
+        const jugs = Number(jugsInput.value);
+        const valid = Number.isInteger(jugs) && jugs >= 1 && jugs <= MAX_JUGS;
+        totalEl.classList.toggle("invisible", !valid);
+        if (valid) totalEl.querySelector("strong").textContent = `€${jugs * PRICE_PER_JUG}`;
+      }
+      jugsInput.addEventListener("input", updateTotal);
+      updateTotal();
+
+      // Background photo per view. Write the full class names out here so Tailwind generates them.
+      const BACKGROUNDS = {
+        form: "bg-[url('images/olijven.jpg')]",
+        confirm: "bg-[url('images/landschap.jpg')]",
+      };
+      const bg = document.getElementById("bg");
+      function setBackground(view) {
+        Object.values(BACKGROUNDS).forEach((cls) => bg.classList.remove(cls));
+        bg.classList.add(BACKGROUNDS[view]);
+      }
+
+      // sub: a string, or an array of strings/Nodes (e.g. a <strong> element) — never parsed as HTML.
+      function showSuccess(title, sub) {
+        successText.textContent = title;
+        successSub.replaceChildren(...[].concat(sub));
+        form.classList.add("hidden");
+        confirmPanel.classList.add("hidden");
+        success.classList.remove("hidden");
+        setBackground("confirm");
+      }
+
+      if (confirmCode !== null) {
+        form.classList.add("hidden");
+        confirmPanel.classList.remove("hidden");
+        setBackground("confirm");
+      }
+
+      confirmBtn.addEventListener("click", async () => {
+        confirmError.classList.add("hidden");
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = "Bezig met bevestigen…";
+
+        try {
+          const body = new URLSearchParams({ action: "confirm", code: confirmCode });
+          const res = await fetch(SCRIPT_URL, { method: "POST", body });
+          const result = await res.json();
+
+          if (result.ok) {
+            history.replaceState(null, "", location.pathname); // remove the code from the address bar
+            showSuccess(
+              result.already
+                ? "Je bestelling was al bevestigd."
+                : `Bedankt, ${result.name}! Je bestelling van ${jugsLabel(result.jugs)} is bevestigd.`,
+              "We laten je via e-mail weten wanneer je olijfolie klaarstaat."
+            );
+            return;
+          }
+
+          confirmError.textContent = result.message || "Er ging iets mis. Probeer het opnieuw.";
+          confirmError.classList.remove("hidden");
+          confirmRestart.classList.remove("hidden");
+          confirmRestart.classList.add("inline-block");
+        } catch (err) {
+          console.error(err);
+          confirmError.textContent = "Er ging iets mis. Probeer het opnieuw.";
+          confirmError.classList.remove("hidden");
+        } finally {
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = "Bestelling bevestigen";
+        }
+      });
+
+      function showFieldErrors(errors) {
+        form.querySelectorAll("[data-error-for]").forEach((el) => {
+          const msg = errors[el.dataset.errorFor];
+          el.textContent = msg || "";
+          el.classList.toggle("hidden", !msg);
+        });
+      }
+
+      function showFormError(msg) {
+        formError.textContent = msg || "";
+        formError.classList.toggle("hidden", !msg);
+      }
+
+      function validate(data) {
+        const errors = {};
+        const name = data.get("name").trim();
+        const email = data.get("email").trim();
+        const jugs = Number(data.get("jugs"));
+        // Quick checks for instant feedback; the full name check (incl. banned names) runs in Apps Script.
+        if (name.length < 2 || (name.match(/\p{L}/gu) || []).length < 2) errors.name = "Vul je naam in.";
+        else if (!/^\p{L}[\p{L}\p{M}' ’.\-]*$/u.test(name)) errors.name = "Gebruik alleen letters in je naam (geen cijfers of tekens).";
+        if (!/^[a-z0-9][a-z0-9._%+\-]*@[a-z0-9](?:[a-z0-9\-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9\-]*[a-z0-9])?)*\.[a-z]{2,}$/i.test(email)) {
+          errors.email = "Vul een geldig e-mailadres in.";
+        }
+        if (!Number.isInteger(jugs) || jugs < 1 || jugs > MAX_JUGS) {
+          errors.jugs = `Kies een aantal tussen 1 en ${MAX_JUGS}.`;
+        }
+        return errors;
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        showFormError("");
+
+        const data = new FormData(form);
+        const errors = validate(data);
+        showFieldErrors(errors);
+        if (Object.keys(errors).length > 0) return;
+
+        if (!SCRIPT_URL.startsWith("https://")) {
+          showFormError("Het bestelformulier is nog niet ingesteld.");
+          return;
+        }
+
+        if (captchaId === null || !window.turnstile) {
+          showFormError("De beveiligingscontrole kon niet laden. Herlaad de pagina of schakel je adblocker uit.");
+          return;
+        }
+        const token = turnstile.getResponse(captchaId);
+        if (!token) {
+          showFormError("Bevestig eerst dat je geen robot bent.");
+          return;
+        }
+
+        const body = new URLSearchParams(data);
+        body.delete("cf-turnstile-response"); // added automatically by the widget; we send it as "token"
+        body.set("token", token);
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Bezig met verzenden…";
+        let done = false;
+
+        try {
+          // URLSearchParams body = "simple" CORS request, so Apps Script needs no preflight.
+          const res = await fetch(SCRIPT_URL, { method: "POST", body });
+          const result = await res.json();
+
+          if (result.ok) {
+            done = true;
+            const name = data.get("name").trim();
+            const email = data.get("email").trim();
+            const jugs = Number(data.get("jugs"));
+            const emailEl = document.createElement("strong");
+            emailEl.className = "font-bold break-all";
+            emailEl.textContent = email;
+            showSuccess(`Bijna klaar, ${name}! Bevestig nog je bestelling van ${jugsLabel(jugs)}.`, [
+              "We hebben een e-mail gestuurd naar ",
+              emailEl,
+              ". Klik op de link in die e-mail om je bestelling te bevestigen. " +
+                "Zonder bevestiging wordt je bestelling niet verwerkt. Niets ontvangen? Kijk ook in je spam.",
+            ]);
+            return;
+          }
+
+          if (result.errors) showFieldErrors(result.errors);
+          showFormError(result.message || "Controleer de velden hieronder.");
+        } catch (err) {
+          console.error(err);
+          showFormError("Er ging iets mis. Probeer het opnieuw.");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Bestelling plaatsen";
+          // A captcha token can only be used once, so get a fresh one for the next attempt.
+          if (!done) turnstile.reset(captchaId);
+        }
+      });
+    </script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad" async defer></script>
+  </body>
+</html>
