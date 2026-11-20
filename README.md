@@ -86,8 +86,8 @@ The script now contacts Cloudflare, so Google needs new permission. Go to **Depl
 Every order must be confirmed by email, so nobody can order in someone else's name:
 
 1. The customer fills in the form.
-2. They get an email with a link to the order page.
-3. On that page they click **Bestelling bevestigen**.
+2. They get an email with a **Bestelling bevestigen** button that links to the order page.
+3. When they click it, the order page opens and confirms the order automatically (no second click), then shows the confirmation.
 4. Only then does the order appear in **Bestellingen**.
 
 The email is sent from **your own Gmail address**, with the sender name *Olijfolie*. Customers can see your address and reply to it.

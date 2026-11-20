@@ -47,14 +47,15 @@
             <p id="success-sub" class="mt-2 text-sm text-olive-700"></p>
           </div>
 
-          <!-- Shown when the visitor arrives via the link in the confirmation email (?bevestig=…) -->
+          <!-- Shown while the order from the confirmation email link (?bevestig=…) is confirmed automatically -->
           <div id="confirm" class="hidden text-center">
-            <h2 class="text-xl font-semibold">Bevestig je bestelling</h2>
-            <p class="mt-2 text-sm text-olive-700">Klik op de knop om je bestelling definitief te maken.</p>
+            <h2 class="text-xl font-semibold">Je bestelling wordt bevestigd…</h2>
+            <p id="confirm-wait" role="status" class="mt-2 text-sm text-olive-700">Even geduld, dit duurt maar enkele seconden.</p>
             <p id="confirm-error" role="alert" class="mt-5 hidden rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700"></p>
+            <!-- Only shown when confirming failed because of a connection problem -->
             <button id="confirm-btn" type="button"
-              class="mt-6 w-full rounded-lg bg-olive-600 px-4 py-3 font-semibold text-white transition hover:bg-olive-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-olive-200 disabled:cursor-not-allowed disabled:opacity-60">
-              Bestelling bevestigen
+              class="mt-6 hidden w-full rounded-lg bg-olive-600 px-4 py-3 font-semibold text-white transition hover:bg-olive-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-olive-200 disabled:cursor-not-allowed disabled:opacity-60">
+              Opnieuw proberen
             </button>
             <a id="confirm-restart" href="./" class="mt-4 hidden text-sm font-medium text-olive-700 underline hover:text-olive-900">
               Nieuwe bestelling plaatsen
@@ -231,16 +232,14 @@
         setBackground("confirm");
       }
 
-      if (confirmCode !== null) {
-        form.classList.add("hidden");
-        confirmPanel.classList.remove("hidden");
-        setBackground("confirm");
-      }
+      const confirmWait = document.getElementById("confirm-wait");
 
-      confirmBtn.addEventListener("click", async () => {
+      // Confirms the order from the email link. Runs automatically when the page opens,
+      // so clicking the button in the email is all the customer has to do.
+      async function confirmOrder() {
         confirmError.classList.add("hidden");
-        confirmBtn.disabled = true;
-        confirmBtn.textContent = "Bezig met bevestigen…";
+        confirmBtn.classList.add("hidden");
+        confirmWait.classList.remove("hidden");
 
         try {
           const body = new URLSearchParams({ action: "confirm", code: confirmCode });
@@ -258,19 +257,30 @@
             return;
           }
 
+          // Invalid or expired link: trying again won't help, so offer a new order instead.
+          confirmWait.classList.add("hidden");
           confirmError.textContent = result.message || "Er ging iets mis. Probeer het opnieuw.";
           confirmError.classList.remove("hidden");
           confirmRestart.classList.remove("hidden");
           confirmRestart.classList.add("inline-block");
         } catch (err) {
+          // Connection problem: let the customer try again.
           console.error(err);
-          confirmError.textContent = "Er ging iets mis. Probeer het opnieuw.";
+          confirmWait.classList.add("hidden");
+          confirmError.textContent = "Er ging iets mis bij het bevestigen. Controleer je internetverbinding en probeer het opnieuw.";
           confirmError.classList.remove("hidden");
-        } finally {
-          confirmBtn.disabled = false;
-          confirmBtn.textContent = "Bestelling bevestigen";
+          confirmBtn.classList.remove("hidden");
         }
-      });
+      }
+
+      confirmBtn.addEventListener("click", confirmOrder);
+
+      if (confirmCode !== null) {
+        form.classList.add("hidden");
+        confirmPanel.classList.remove("hidden");
+        setBackground("confirm");
+        confirmOrder();
+      }
 
       function showFieldErrors(errors) {
         form.querySelectorAll("[data-error-for]").forEach((el) => {
@@ -350,7 +360,7 @@
             showSuccess(`Bijna klaar, ${name}! Bevestig nog je bestelling van ${jugsLabel(jugs)}.`, [
               "We hebben een e-mail gestuurd naar ",
               emailEl,
-              ". Klik op de link in die e-mail om je bestelling te bevestigen. " +
+              ". Klik op de knop in die e-mail om je bestelling te bevestigen. " +
                 "Zonder bevestiging wordt je bestelling niet verwerkt. Niets ontvangen? Kijk ook in je spam.",
             ]);
             return;

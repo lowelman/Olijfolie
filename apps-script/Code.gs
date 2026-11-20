@@ -9,8 +9,8 @@
  *
  * How an order flows:
  *   1. The form posts the order. It is checked and stored in the hidden sheet "Onbevestigd".
- *   2. The customer gets an email with a link to the order page (?bevestig=<code>).
- *   3. On that page they click "Bevestigen", which posts the code back here.
+ *   2. The customer gets an email with a button that links to the order page (?bevestig=<code>).
+ *   3. As soon as that page opens, it automatically posts the code back here (no second click).
  *   4. Only then is the order moved to the "Bestellingen" sheet.
  * This way nobody can place an order in someone else's name.
  *
@@ -200,7 +200,7 @@ function placeOrder_(p) {
   return { ok: true };
 }
 
-// Step 2: the customer clicked "Bevestigen" on the page behind the email link.
+// Step 2: the customer clicked the button in the email; the page it opens posts the code here.
 function confirmOrder_(code) {
   if (!/^[0-9a-f]{32}$/.test(code)) return { ok: false, message: INVALID_LINK };
 
@@ -257,14 +257,18 @@ function sendConfirmationEmail_(email, name, jugs, link) {
     body:
       'Hallo ' + name + ',\n\n' +
       'Bedankt voor je bestelling van ' + amount + ' olijfolie.\n' +
-      'Open de link hieronder en klik op "Bestelling bevestigen". Pas daarna is je bestelling definitief.\n\n' +
+      'Je bestelling is nog niet definitief. Open de link hieronder om ze te bevestigen.\n' +
+      'Je hoeft verder niets te doen: zodra je de link opent, is je bestelling bevestigd ' +
+      'en zie je de bevestiging op onze website.\n\n' +
       link + '\n\n' +
       'De link is ' + CONFIRM_HOURS + ' uur geldig.\n' +
       'Heb je niets besteld? Dan mag je deze e-mail negeren. Er wordt dan niets besteld.',
     htmlBody:
       '<p>Hallo ' + safeName + ',</p>' +
       '<p>Bedankt voor je bestelling van <b>' + amount + '</b> olijfolie.<br>' +
-      'Klik op de knop hieronder en daarna op <b>Bestelling bevestigen</b>. Pas daarna is je bestelling definitief.</p>' +
+      'Je bestelling is nog niet definitief. Klik op de knop hieronder om ze te bevestigen.</p>' +
+      '<p>Je hoeft verder niets te doen: <b>zodra je op de knop klikt, is je bestelling bevestigd.</b> ' +
+      'Je komt dan op onze website, waar je de bevestiging ziet.</p>' +
       '<p><a href="' + safeLink + '" style="display:inline-block;padding:12px 20px;background:#6c7a2c;color:#ffffff;' +
       'border-radius:8px;text-decoration:none;font-weight:bold">Bestelling bevestigen</a></p>' +
       '<p>Werkt de knop niet? Kopieer dan deze link naar je browser:<br>' + safeLink + '</p>' +
